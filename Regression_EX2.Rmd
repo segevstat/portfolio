@@ -1,0 +1,131 @@
+---
+https://www.youtube.com/watch?v=Iwv-aggzNbk&list=RD6_ydwT79j7U&index=4title: "Reg-ex-2"
+author: "segev"
+date: "16 4 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+####סעיף  א4 <br>
+{r}
+library(datasets)
+data("mtcars")
+
+###משתנים מסבירים Xi, 1<=i<=5<br>
+{r} 
+x1 <- mtcars$qsec
+x2 <- mtcars$wt
+x3 <- mtcars$drat
+x4 <- mtcars$hp
+x5 <- mtcars$disp
+
+#משתנה מוסבר יחיד  Y1<br>
+y1 <- mtcars$mpg
+print(y1)
+
+#######################################
+####סעיף  ג4 <br>
+## X1, Y1<br>
+n <- length(y1)
+corx1y1 <- (sum((qsec-mean(qsec))*(mpg-mean(mpg))))/(n*sd(x1)*sd(y1))
+check1<- cor(x1,y1)-cor(qsec,mpg)
+     
+## X2, Y1<br>
+n <- length(y1)
+corx2y1 <- (sum((wt-mean(wt))*(mpg-mean(mpg))))/(n*sd(x2)*sd(y1))
+check2<- cor(x2,y1)-cor(wt,mpg)
+
+## X3, Y1<br>
+n <- length(y1)
+corx3y1 <- (sum((drat-mean(drat))*(mpg-mean(mpg))))/(n*sd(x3)*sd(y1))
+check3<- cor(x3,y1)-cor(drat,mpg)
+
+## X4, Y1 <br>
+n <- length(y1)
+corx4y1 <- (sum((hp-mean(hp))*(mpg-mean(mpg))))/(n*sd(x4)*sd(y1))
+check4<- cor(x4,y1)-cor(hp,mpg)
+
+## X5, Y1 <br>
+n <- length(y1)
+corx5y1 <- (sum((disp-mean(disp))*(mpg-mean(mpg))))/(n*sd(x5)*sd(y1))
+check5<- cor(x5,y1)-cor(disp,mpg)
+  
+# סעיפים ד+ה <br>
+##(Xi)plots <br>
+attach(mtcars)
+##X1-Y1 <br>
+plot(qsec, mpg, main="Scatterplot of qsec-mpg",
+   xlab="time for 0.25 mile crossing ", ylab="Gas fuel eficiancy ", pch=19, echo = true)
+##ניתן לראות כי הקורלציה ביניהם חיובית (0.4) וכי  ישנו קשר לינארי עולה, כך שלמדד ההתאוצה <br> 
+##..עד למרחק רבע למייל יש קשר יחסית חזק על יעילות צריכת הדלק <br>
+
+##X2-Y1 <br>
+plot(wt, mpg, main="Scatterplot of wt-mpg",
+   xlab="car weight ", ylab="Gas fuel eficiancy ", pch=19)
+##ניתן לראות כי לקורלציה השלילית (-0.84) יש קשר שלילי המשפיע...<br>
+## על יעילות צריכת הדלק של הרכבים, כל שניתן להניח כי למשקל השפעה 'שלילית'<br>
+
+##X3-Y1 <br>
+plot(drat, mpg, main="Scatterplot of drat-mpg",
+   xlab="Rear axle ratio  ", ylab="Gas fuel eficiancy ", pch=19)
+## ניתן לראות כי לקורלציה יש מדד קשר לינארי חיובי כמו הסל"ד של המנוע משפיעים <br>
+###  באופן ישיר על יעילות צריכת הדלק <br>
+
+##X4-Y1 <br>
+plot(hp, mpg, main="Scatterplot of hp-mpg",
+   xlab="Gross horsepower", ylab="Gas fuel eficiancy ", pch=19)
+##ניתן לראות בגרף הפיזור כי ככל ש'כמות' כוחות הסוס גדולים יותר ברכב כלשהו
+## אזי מדד הקשר חזק יותר ומשפיע על יעילות הצריכה של הדלק, לכן המדד שלילי
+
+##X5-Y1 <br>
+plot(disp, mpg, main="Scatterplot of disp-mpg",
+   xlab="Displacement ", ylab="Gas fuel eficiancy ", pch=19)
+##  ניתן לראות כי למדד הקשר השלישי קשר לינארי שלילי על מדד יעילות צריכת הדלק, שכן <br>
+##ככל שישנם יותר צילינדרים אזי צריכת הדלק תהא יעילה פחות <br>
+ 
+## סעיף ו <br>
+## LS = ((X*xTRANS)**-1)*Xtrans*x*b <br>
+
+Xi's_and_y <- lm(mpg ~ disp + hp + drat+ wt + qsec)
+X <- model.matrix(Xi_and_y)
+beta_estimator_manually <- solve( t(X) %*% X ) %*% t(X) %*% mpg
+
+## סעיף ז <br>
+beta_estimator <-coef(Xi's_and_y )
+print(beta_estimator)
+
+## סעיף ח <br>
+(beta_estimator_manually,beta_estimator_manually )
+
+##סעיף ט <br>
+## הקשר בין ההשפעה השולית של כל משתנה מסביר לזה המוסבר ( היחיד) לעומד האמידה בעבור בתא כובע,<br>
+##היא שההשפעה שונה , שכן אין שוני בין אלמנטי וקטור 'הקורלציות ( באם נציג כזה) למול<br> 
+##   אלמנטי הוקטור של ביתא, שכן כולם מסבירים את יעילות צריכת הדלק <br>
+
+
+
+
+
