@@ -1,0 +1,188 @@
+
+
+```{r}
+
+render("LAB1.Rmd", output_format = "word_document")
+```
+
+
+```{r,echo=FALSE,message=FALSE, warning=FALSE, results=FALSE}
+library(tidyverse) 
+library(data.table)
+
+```  
+
+
+```{r,echo=FALSE,message=FALSE, warning=FALSE, results=FALSE}
+    library(ggplot2)
+
+```
+  
+#  we have extracted the data file from the web and than from the PC's path. Then, we made sure it is a data frame using class command
+```{r}
+
+data1 <- read.csv("C:/Users/DELL/OneDrive/Second year/R/owid-covid-data.csv")
+
+class(data1)
+
+```
+
+# we have sorted the extracted table from the file, and have created 3 new data frames in order to display the required data]
+
+```{r}
+# table 1 - total_cases_per_million
+t1<-data1[order(-data1$total_cases_per_million, data1$date),]
+# t1_t <- as_tibble(t1), as second method
+t1_h<- t1%>% distinct(t1$location, .keep_all = TRUE)
+table_1_Q2<-  data.frame(country = c(t1_h$location[1:5]), 
+                     last_date = c(t1_h$date[1:5]), 
+                     total_cases_per_million = c(t1_h$total_cases_per_million[1:5]))
+print(table_1_Q2)
+# table 2 - total_deaths_per_million
+t2<-data1[order(-data1$total_deaths_per_million, data1$date),]
+#t2_t <- as_tibble(t2), as second method
+t2_h<- t2%>% distinct(t2$location, .keep_all = TRUE)
+table_2_Q2<-  data.frame(country = c(t2_h$location[1:5]), 
+                     last_date = c(t2_h$date[1:5]), 
+                     total_deaths_per_million = c(t2_h$total_deaths_per_million[1:5]))
+print(table_2_Q2)
+
+# table 3 - `total_vaccinations_per_hundred'
+t3<-data1[order(-data1$total_vaccinations_per_hundred, data1$date),]
+
+t3_h<-t3%>% distinct(t3$location, .keep_all = TRUE)
+table_3_Q2<-  data.frame(country = c(t3_h$location[1:5]), 
+                     last_date = c(t3_h$date[1:5]), 
+                     total_vaccinations_per_hundred = c(t3_h$total_vaccinations_per_hundred[1:5]))
+print(table_3_Q2)
+```
+
+# we have codded a function  for plotting the input vector of data as it is a column in the received data frame as a function of the date. We used it to plot 4 plots as require]
+# a +b
+```{r}
+DF_plot_function <- function(DF,column){
+    ggplot(DF, aes(factor(date), column, group = continent, 
+    color = continent)) + geom_point(size = 0.5)+geom_line(size = 0.5, alpha = 2) +scale_color_brewer(name = "Continent", palette     = "Set1")+    xlab("Date") 
+}
+ 
+myDf<- data1 %>% filter(continent != "")
+
+plotQ3_1<-DF_plot_function(myDf,myDf$new_cases/10 ) + ylab("New cases per continent")
+  
+plotQ3_2<-DF_plot_function(myDf, log(myDf$new_cases_smoothed))+  ylab("New cases smoothed per continent")
+  
+plotQ3_3<-DF_plot_function(myDf, log(myDf$new_deaths_smoothed)) +  ylab("New deaths smoothed per continent")
+  
+plotQ3_4<-DF_plot_function(myDf, log(myDf$new_vaccinations_smoothed))+  ylab("New vaccinations smoothed per continent")
+  
+
+plotQ3_1
+plotQ3_2
+plotQ3_3
+plotQ3_4
+
+print("Firstly, as per the 2 plot of new cases and new cases smoothed, we think that the regular count is easier in interepret due the big difference of the total numbers. 
+Secondly, the two additional plots of new deaths and new vacviantions displaying the difference between the continents.
+Regarding new case, we have divided it by 10 for better diaply, due to the reason the the orininal data in this column is highly big the showm with exp.
+By filltring the data with the code [data1 %>% filter(new_cases<0)] we can see that there are negative values which displayed in the recored of new_cases. For eg, check the record of Ecuador from	07/09/2020, which shows -7953 new cases.")
+
+print("!Noted! - in order to make sure tha data remains reliable as received, we kept one blanked bar in the plots in which realted to the 4256 records which originally blanked under the continent column. Acctually, the classification of the information is under the column of 'location' and mention general data as per its case, including the 6 continents and  one more cotegory of the classification of as 'world' .")
+
+```
+
+# We have created new column as required, "death_rate"
+```{r}
+data1$death_rate<- data1$total_deaths/data1$total_cases
+# top 3
+t<-data1[order(-data1$death_rate, data1$date),]
+t_<- t%>% distinct(t$location, .keep_all = TRUE)
+top3<-  data.frame(country = c(t_$location[1:3]), 
+                     last_date = c(t_$date[1:3]), 
+                     death_rate = c(t_$death_rate[1:3]))
+top3
+#Histogram
+g1<-data1[order(data1$date, decreasing = TRUE),]
+d_hist<-  data.frame(country = c(g1$location), 
+                     last_date = c(g1$date), 
+                     death_rate = c(g1$death_rate))
+
+# subset(d_hist, select=d_hist$last_date = 2021-04-29)
+g4<-d_hist%>% distinct(d_hist$country, .keep_all = FALSE)
+g3<-d_hist%>% distinct(d_hist$last_date, .keep_all = FALSE)
+
+
+h1<-hist(g3$death_rate , col = 'skyblue3') 
+
+h2<-ggplot(data=g3, aes(death_rate), breaks= 50) + 
+  geom_histogram()
+
+h2
+h1
+print("As per the most updated (current) death rate, the histograms (bothh1 and h2) display the frequency of each rate ( 0<rate<1), linked the the countries")
+```
+
+# We have created new column as required, "two_dose_fraction". later, fillter it to 3 countries and plot the info to infer which strategy each country 
+```{r}
+data1$two_dose_fraction<- data1$people_fully_vaccinated/data1$people_vaccinated
+t2<-data1[order(-data1$two_dose_fraction, data1$date),]
+
+Q8data<- cbind(data1, data1$two_dose_fraction)
+Q8data0 <-select(Q8data, location, date, two_dose_fraction)
+Q8data1<- filter(Q8data0, location== "Israel"|location== "United Kingdom"| location == "United States")
+Q8data2<- na.omit(Q8data1)
+Q8_plot <- ggplot(Q8data2, aes(x=date, y=two_dose_fraction ))+geom_point(aes(color = location)) 
+
+Q8_plot+labs(title="Q8 plot- vaccination strategies", 
+       subtitle="Vccination strategies- as per two dose fraction",
+       caption="plot_table - Q8 ",
+       x="Countries",
+       fill="Countries") 
+
+print("As displyed in Q8 plot, we think that both Israel and USA own almost the same strategy,as per thier 'rate', which means they vaccinate thier people with 2 doses. The UK, as seems, prefere to vaccinate as mush as people with one dose over time.")
+
+```
+
+#We want to use the data in order to study the time delay between the diagnosis of Covid-19 ,
+and the death from Covid-19 for cases not surviving the disease.
+
+
+```{r}
+
+# a, b
+Cross_corr <- function (df, columnx, columny, country) {
+      df %>% select(location, columnx, columny)%>% filter(location==country)
+      s<-60
+      e<-60
+      df[is.na(df)] <- 0 
+      #s= start, e= end
+      n <- length(columnx)
+      cros_corr_vector <- c()
+      for (i in -60:60) {
+        if (i>0){
+          X <-columnx[ 1 :(n - i)]
+          print(length(X))
+          Y <-columny[(-i+1):n]
+          print(length(Y))
+          cros_corr_vectorr[i+s+1] <- cor(X,Y)
+        }
+        if (i==0){
+          cros_corr_vector[i+s+1] <- cor(columnx,columny)} 
+        if (i<0) {
+          X[is.na(X)] <- 0
+          X <-columnx[(i): n]
+          print(length(X))
+          Y <-columny[(i+1):n]
+          print(length(Y))
+          cros_corr_vector[i+s+1] <- (cor(X,Y))}
+      }
+      return (cros_corr_vector)
+    }
+    
+    #b
+    
+cross_correlation<-Cross_corr(data1,"new_cases","new_deaths","Canada")
+    
+plot(cross_correlation)
+print ("At the time delay the cross correlation maximized") 
+```
+
