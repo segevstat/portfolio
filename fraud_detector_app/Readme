@@ -74,3 +74,6 @@ fraud_ml_project/
 ├── requirements.txt               # Required Python packages
 ├── README.md                      # Project overview and instructions
 └── main.py                        # 🎬 Script to run the full fraud detection pipeline
+
+
+
