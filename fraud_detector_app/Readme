@@ -76,4 +76,9 @@ fraud_ml_project/
 └── main.py                        # 🎬 Script to run the full fraud detection pipeline
 
 
+## How to run in in local PC?
+
+on bash :
+
+streamlit run \....\path\...fraud_ml_project\app\app.py
 
